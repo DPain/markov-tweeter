@@ -5,7 +5,7 @@ Created on 2018. 9. 14.
 '''
 
 from string_helper import isDigitsPunct
-from Random import randint
+from random import randint
 
 class Markovian(object):
     '''
@@ -17,8 +17,8 @@ class Markovian(object):
         Constructor
         '''
         self.max_tweet_size = limit
-        self.dict = dict()
-        self.total_freq = dict()
+        self.key_pair_freq_dict = dict()
+        self.key_pair_dict = dict()
         
         print("Instantiated a Markovian with Max Tweet Size:%d" % self.max_tweet_size)
         
@@ -36,43 +36,71 @@ class Markovian(object):
         prev = words[0]
         for word in words[1:]:
             if not isDigitsPunct(word):
-                if (prev, word) in self.dict.keys():
-                    self.dict[(prev, word)] += 1
+                if (prev, word) in self.key_pair_freq_dict.keys():
+                    self.key_pair_freq_dict[(prev, word)] += 1
                 else:
-                    self.dict[(prev, word)] = 1
-                    if prev in self.total_freq.keys():
-                        self.total_freq[prev] += 1
+                    self.key_pair_freq_dict[(prev, word)] = 1
+                    if prev in self.key_pair_dict.keys():
+                        self.key_pair_dict[prev].append(word)
                     else:
-                        self.total_freq[prev] = 1
+                        self.key_pair_dict[prev] = list()
+                        self.key_pair_dict[prev].append(word)
                         
                 prev = word
 
         
     def printMap(self):
-        for key, arr in self.dict.items():
+        for key, arr in self.key_pair_freq_dict.items():
             print("Key:%s, List:%s" % (key, arr))
             
-        for key, arr in self.total_freq.items():
+        for key, arr in self.key_pair_dict.items():
             print("Key:%s, size:%s" % (key, arr))
+            
+    def getPairFromRatio(self, key, num):
+        self.key_pair_dict[key]
+        return ""
             
     def generateRandomTweet(self):
         tweet = ""
         
-        total = len(self.total_freq)
+        total = len(self.key_pair_dict)
         num = randint(0, total)
         
         i = 0
         
-        word = self.total_freq.keys()[num]
-        tweet += word
+        word = list(self.key_pair_dict.keys())[num]
+        tweet.join(word)
         i += len(word)
         
-        print("Random number:%d/%d\n", num, total)
-        print("Random word:%s\n", word)
+        print("Random number:%d/%d" % (num, total))
+        print("Random word:%s" % word)
         
-        total = self.total_freq[word]
-        num = randint(0, total)
+        total_freq = 0
+        for pair in self.key_pair_dict[word]:
+            print("Pair: " + pair)
+            total_freq += self.key_pair_freq_dict[(word, pair)]
+        num = randint(0, total_freq - 1)
+        print(word, str(num) + "/" + str(total_freq))
+        print("%s: %s" % (word, self.key_pair_dict[word]))
+        
+        word = self.key_pair_dict[word][num]
+        
+        while i + len(word) < self.max_tweet_size:
+            tweet.join(word)
+            i += len(word)
+            
+            total_freq = 0
+            for pair in self.key_pair_dict[word]:
+                print("Pair: %s Freq: %i" % (pair, self.key_pair_freq_dict[(word, pair)]))
+                total_freq += self.key_pair_freq_dict[(word, pair)]
+            num = randint(0, total_freq - 1)
+            print(word, str(num) + "/" + str(total_freq))
+            print("%s: %s" % (word, self.key_pair_dict[word]))
+            
+            word = self.getPairFromRatio(word, num)
+        
         ##
+        """
         Node* node = (Node*) getNodeFromRatio(&base, num);
         // Account for trailing \0 character
         while(i + strlen(node->pair) < (TWITTER_MAX_SIZE - 1)) {
@@ -99,5 +127,5 @@ class Markovian(object):
         }
         
         strcpy(output, tweet);
-    }
+        """
     

@@ -9,7 +9,7 @@ Created on 2018. 9. 14.
 def main():
     markovian = Markovian(limit=280)
     markovian.readFile()
-    markovian.printMap()
+    #markovian.printMap()
     text = markovian.generateRandomTweet()
 
 main()
